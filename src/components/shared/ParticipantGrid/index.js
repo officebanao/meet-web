@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import VideoBox from "../VideoBox";
 import { calculateRowsAndColumns, getLeftTop } from "../../../utils";
 import { useWindowResize } from "../../../hooks/useWindowResize";
+import { useTransition, animated } from 'react-spring'
 
 const ParticipantGrid = ({ dominantSpeakerId }) => {
     const layout = useSelector(state => state.layout);
@@ -31,6 +32,16 @@ const ParticipantGrid = ({ dominantSpeakerId }) => {
     const remoteTracks = useSelector(state => state.remoteTrack);
     const localUser = conference.getLocalUser();
 
+    const transitions = useTransition(conference.getParticipantCount(), {
+        from: { opacity: 0 },
+        enter: { opacity: 1 },
+        leave: { opacity: 0 },
+        delay: 200,
+        config: config.molasses,
+        onRest});
+
+    console.log("transitions", transitions);
+        
     //merge local and remote track
     const tracks = { ...remoteTracks, [localUser.id]: localTracks };
     // merge local and remote participant
@@ -53,11 +64,13 @@ const ParticipantGrid = ({ dominantSpeakerId }) => {
                     <>
                         {[...Array(columns)].map((y, j) => {
                             return (tracks[participants[i * columns + j]?._id] || participants[i * columns + j]?._id) &&
-                                <Box className={classes.containerItem} style={{ 
+                                <animated.div className={classes.containerItem} style={{ 
                                     left: getLeftTop(i, j, gridItemWidth, gridItemHeight, offset, lastRowOffset, rows, conference.getParticipantCount(), viewportHeight, lastRowWidth).left, 
                                     top: getLeftTop(i, j, gridItemWidth, gridItemHeight, offset, lastRowOffset, rows, conference.getParticipantCount(), viewportHeight, lastRowWidth).top, 
                                     width: rows === (i - 1) && lastRowWidth ? lastRowWidth : gridItemWidth,
                                     height: gridItemHeight
+                                    // opacity: opacity.to(item.op),
+                                    // transform: opacity.to(item.trans).to(y => `translate3d(0,${y}px,0)`)
                                 }}>
                                     <VideoBox key={i * columns + j}
                                         height={gridItemHeight}
@@ -70,7 +83,7 @@ const ParticipantGrid = ({ dominantSpeakerId }) => {
                                         participantTracks={tracks[participants[i * columns + j]._id] || []}
                                         localUserId={conference.myUserId()}
                                     />
-                                </Box>
+                                </animated.div>
                             }
                         )}
                     </>
