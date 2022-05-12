@@ -45,7 +45,7 @@ const ParticipantGrid = ({ dominantSpeakerId }) => {
         offset,
         lastRowOffset,
         lastRowWidth
-    } = calculateRowsAndColumns(conference.getParticipantCount(), viewportWidth, viewportHeight); // get grid item dimension
+    } = calculateRowsAndColumns(conference.getParticipantCount() - 1 , viewportWidth, viewportHeight); // get grid item dimension
     // now render them as a grid
 // These two are just helpers, they curate spring data, values that are later being interpolated into css
     const to = (i) => ({
@@ -55,6 +55,7 @@ const ParticipantGrid = ({ dominantSpeakerId }) => {
         rot: 360,
         delay: i * 80,
     })
+    
     const from = (_i) => ({ x: 0, rot: 0, scale: 1.5, x: 2000 })
     // This is being used down there in the view, it interpolates rotation and scale into a css transform
     const trans = (r, s) =>
